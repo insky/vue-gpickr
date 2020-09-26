@@ -1,0 +1,78 @@
+{
+  "name": "vue-gpickr",
+  "version": "0.2.5",
+  "private": false,
+  "description": "Vue gradient picker",
+  "keywords": [
+    "vue",
+    "gradient",
+    "gradient picker",
+    "gpickr"
+  ],
+  "author": {
+    "name": "Roman Zhbadynskyi",
+    "email": "zhbadynskyi@gmail.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/insky/vue-gpickr.git"
+  },
+  "homepage": "https://insky.github.io/vue-gpickr/",
+  "main": "./dist/vue-gpickr.umd.min.js",
+  "files": [
+    "dist/*"
+  ],
+  "scripts": {
+    "serve": "vue-cli-service serve main.js",
+    "build": "vue-cli-service build --target lib --name vue-gpickr src/index.js && rm dist/demo.html",
+    "deploy": "./deploy.sh",
+    "_deploy": "NODE_ENV=production vue-cli-service build --target app --name vue-gpickr --dest docs main.js",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "core-js": "^3.6.5",
+    "tinycolor2": "^1.4.1",
+    "vue": "^2.6.11",
+    "vue-color": "^2.7.1"
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.10.4",
+    "@vue/cli-plugin-babel": "~4.5.0",
+    "@vue/cli-plugin-eslint": "~4.5.0",
+    "@vue/cli-service": "~4.5.0",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^6.7.2",
+    "eslint-plugin-vue": "^6.2.2",
+    "node-sass": "^4.12.0",
+    "sass-loader": "^8.0.2",
+    "vue-template-compiler": "^2.6.11"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
+    "rules": {}
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ],
+  "babel": {
+    "presets": [
+      "@vue/cli-plugin-babel/preset"
+    ],
+    "plugins": [
+      "@babel/plugin-proposal-class-properties"
+    ]
+  }
+}
