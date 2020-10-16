@@ -31,7 +31,6 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "core-js": "^3.6.5",
     "tinycolor2": "^1.4.1",
     "vue": "^2.6.11",
     "vue-color": "^2.7.1"
