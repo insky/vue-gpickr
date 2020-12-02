@@ -11,19 +11,34 @@
         <div class="vue-gpickr-stops-preview-container">
           <div class="vue-gpickr-stops-preview" :style="stopsPreviewStyle" @click.stop.prevent="addStop($event)"></div>
         </div>
-        <div
-          class="vue-gpickr-stop"
-          v-for="(stop, index) in stops"
-          :key="index"
-          :style="stopStyle(index)"
-          :class="{ active: index == currentStopIdx }"
-          @mousedown.stop="handleMouseDown(index, $event)"
-          @touchstart.stop="handleTouchstart(index, $event)"
-        >
+        
+        <div v-if="isRadialGradient">
+          <div
+            class="vue-gpickr-stop"
+            v-for="(stop, index) in stops"
+            :key="index"
+            :style="stopStyle(index)"
+            :class="{ active: index == currentStopIdx }"
+            @mousedown.stop="handleMouseDown(index, $event)"
+            @touchstart.stop="handleTouchstart(index, $event)"
+          >
+          </div>
+        </div>
+        <div v-else>
+          <div
+            class="vue-gpickr-stop"
+            v-for="(stop, index) in stops"
+            :key="index"
+            :style="stopStyle(index)"
+            :class="{ active: index == currentStopIdx }"
+            @mousedown.stop="handleMouseDown(index, $event)"
+            @touchstart.stop="handleTouchstart(index, $event)"
+          >
+          </div>
         </div>
       </div>
 
-      <div class="vue-gpickr-controls-container">
+      <div class="vue-gpickr-controls-container" v-if="!isRadialGradient && angle !== null">
         <div class="vue-gpickr-slider-container">
           <input type="range" min="0" max="360" step="1" v-model="angle" />
           <div class="label">Angle</div>
@@ -40,6 +55,7 @@
 <script>
 import { Sketch } from "vue-color";
 import LinearGradient from './LinearGradient';
+import RadialGradient from "./RadialGradient";
 
 const COLOR = 0;
 const POSITION = 1;
@@ -51,8 +67,12 @@ export default {
   },
   props: {
     value: {
-      type: LinearGradient,
+      type: Object,
       default: () => new LinearGradient()
+    },
+    isRadialGradient: {
+      type: Boolean,
+      default: () => false
     }
   },
   data() {
@@ -67,9 +87,10 @@ export default {
   computed: {
     angle: {
       get() {
-        return this.value.angle;
+        return !this.isRadialGradient ? this.value.angle : null;
       },
       set(val) {
+        if (this.isRadialGradient) return
         let degrees = parseInt(val, 10) || 0;
         if (degrees < 0) {
           degrees = 0;
@@ -96,7 +117,11 @@ export default {
       },
       set(val) {
         this.stops[this.currentStopIdx][COLOR] = val.hex8;
-        this.emitInput(this.angle, this.stops);
+        if (this.isRadialGradient) {
+          this.emitInput(null, this.stops);
+        } else {
+          this.emitInput(this.angle, this.stops);
+        }
       }
     },
     orderedStops() {
@@ -105,11 +130,19 @@ export default {
   },
   methods: {
     emitInput(angle, stops) {
-      this.$emit('input', new LinearGradient({ angle, stops }));
+      if (this.isRadialGradient) {
+        this.$emit('input', new RadialGradient({ stops }));
+      } else {
+        this.$emit('input', new LinearGradient({ angle, stops }));
+      }
     },
     getGradientString(angle) {
       const stops = this.orderedStops.map(stop => `${stop[COLOR].toString()} ${stop[POSITION] * 100}%`).join(',');
-      return `linear-gradient(${angle}deg, ${stops})`;
+      if (this.isRadialGradient) {
+        return `radial-gradient(${stops})`;
+      } else {
+        return `linear-gradient(${angle}deg, ${stops})`;
+      }
     },
     setCurrentStopIdx(index) {
       this.currentStopIdx = index;
@@ -123,7 +156,11 @@ export default {
       const index = this.stops.length;
       this.stops.push([this.currentColor, position]);
       this.setCurrentStopIdx(index);
-      this.emitInput(this.angle, this.stops);
+      if (this.isRadialGradient) {
+        this.emitInput(null, this.stops);
+      } else {
+        this.emitInput(this.angle, this.stops);
+      }
     },
     removeCurrentStop() {
       this.stops.splice(this.currentStopIdx, 1);
@@ -131,7 +168,11 @@ export default {
         this.setCurrentStopIdx(this.currentStopIdx - 1);
       }
       this.unbindEventListeners();
-      this.emitInput(this.angle, this.stops);
+      if (this.isRadialGradient) {
+        this.emitInput(null, this.stops);
+      } else {
+        this.emitInput(this.angle, this.stops);
+      }
     },
     setContainerBoundingClientRectangle() {
       this.containerBoundingClientRectangle = this.$refs.stopsContainer.getBoundingClientRect();
@@ -167,7 +208,11 @@ export default {
       const previousPosition = this.stops[this.currentStopIdx][POSITION];
       this.stops[this.currentStopIdx][POSITION] = position;
       if (previousPosition != position) {
+        if (this.isRadialGradient) {
+        this.emitInput(null, this.stops);
+        } else {
         this.emitInput(this.angle, this.stops);
+        }
       }
     },
     handleMouseDown (index) {
@@ -201,7 +246,7 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="less" scoped>
 ::v-deep {
   .vc-sketch {
     box-shadow: none;

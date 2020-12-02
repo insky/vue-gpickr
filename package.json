@@ -24,6 +24,7 @@
     "dist/*"
   ],
   "scripts": {
+    "dev": "vue-cli-service serve main.js",
     "serve": "vue-cli-service serve main.js",
     "build": "vue-cli-service build --target lib --name vue-gpickr src/index.js && rm dist/demo.html",
     "deploy": "./deploy.sh",
@@ -43,8 +44,8 @@
     "babel-eslint": "^10.1.0",
     "eslint": "^7.12.1",
     "eslint-plugin-vue": "^7.1.0",
-    "node-sass": "^5.0.0",
-    "sass-loader": "^10.0.5",
+    "less": "3.0.4",
+    "less-loader": "^5.0.0",
     "vue-template-compiler": "^2.6.12"
   },
   "eslintConfig": {

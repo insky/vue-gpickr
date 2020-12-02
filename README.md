@@ -16,27 +16,54 @@ npm i vue-gpickr
 
 ```js
 <template>
-  <vue-gpickr v-model="gradient" />
+  <vue-gpickr v-model="gradient" :isRadialGradient="isRadialGradient" />
 </template>
 
 <script>
-import { VueGpickr, LinearGradient } from 'vue-gpickr';
+import VueGpickr from "./src/VueGpickr";
+import LinearGradient from "./src/LinearGradient";
+import RadialGradient from "./src/RadialGradient";
 
-const gradient = new LinearGradient({
+const linearGradient = new LinearGradient({
   angle: 0,
   stops: [
-    ['#0359b5', 0],
-    ['#f6ce01', 1]
-  ]
+    ["#0359b5", 0],
+    ["#f6ce01", 1],
+  ],
+});
+
+const radialGradient = new RadialGradient({
+  stops: [
+    ["#0359b5", 0],
+    ["#f6ce01", 1],
+  ],
 });
 
 export default {
   components: {
-    VueGpickr
+    VueGpickr,
+  },
+  mounted() {
+    this.gradient = this.isRadialGradient ? radialGradient : linearGradient
   },
   data() {
     return {
-      gradient
+      isRadialGradient: true,
+      gradient: null
+    };
+  },
+  computed: {
+    gradientString() {
+      return (this.gradient || '').toString() 
+    }
+  },
+  methods: {
+    toggleMode() {
+      this.isRadialGradient = !this.isRadialGradient
+      this.gradient = null
+      this.$nextTick(() => {
+        this.gradient = this.isRadialGradient ? radialGradient : linearGradient
+      })
     }
   }
 };
