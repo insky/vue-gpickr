@@ -1,12 +1,9 @@
 <template>
   <div class="vue-gpickr">
+    <slot name="controls-wrapper"></slot>
     <color-picker v-model="currentColor" :preset-colors="null" />
-
-    <div class="vue-gpickr-inner-container">
-      <div class="vue-gpickr-preview-container">
-        <div class="vue-gpickr-preview" :style="previewStyle"></div>
-      </div>
-
+    <div class="vue-gpickr-inner-container" :style="`--bgStyle:${previewStyle.background}`">
+      <slot name="preview-container"></slot>
       <div class="vue-gpickr-stops-container" ref="stopsContainer">
         <div class="vue-gpickr-stops-preview-container">
           <div class="vue-gpickr-stops-preview" :style="stopsPreviewStyle" @click.stop.prevent="addStop($event)"></div>
@@ -37,7 +34,6 @@
           </div>
         </div>
       </div>
-
       <div class="vue-gpickr-controls-container" v-if="!isRadialGradient && angle !== null">
         <div class="vue-gpickr-slider-container">
           <input type="range" min="0" max="360" step="1" v-model="angle" />
@@ -251,6 +247,7 @@ export default {
   .vc-sketch {
     box-shadow: none;
     padding: 10px;
+    padding-bottom: 0;
     .vc-sketch-presets {
       display: none;
     }
@@ -271,28 +268,14 @@ export default {
 .vue-gpickr {
   position: relative;
   display: inline-flex;
-  flex-direction: row;
+  flex-direction: column;
   background: #FFF;
   border-radius: 4px;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, .15), 0 8px 16px rgba(0, 0, 0, .15);
   .vue-gpickr-inner-container {
     padding: 10px;
-    padding-left: 0;
+    padding-top: 0;
     user-select: none;
-    .vue-gpickr-preview-container {
-      width: 200px;
-      height: 150px;
-      background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAMElEQVQ4T2N89uzZfwY8QFJSEp80A+OoAcMiDP7//483HTx//hx/Ohg1gIFx6IcBALl+VXknOCvFAAAAAElFTkSuQmCC);
-      background-size: 10px;
-      position: relative;
-      .vue-gpickr-preview {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-      }
-    }
     .vue-gpickr-stops-container {
       position: relative;
       .vue-gpickr-stops-preview-container {

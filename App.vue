@@ -3,15 +3,16 @@
     <vue-gpickr 
       v-if="gradient"
       :isRadialGradient="isRadialGradient" 
-      class="gpickr" 
+      class="gpickr-wrapper" 
       v-model="gradient" 
-    />
-    <div>
-      <h4>{{gradientString}}</h4>
-      <h2 @click="toggleMode">
-        click this to Toggle mode
-      </h2>
-    </div>
+    >
+      <div slot="controls-wrapper" class="controls-wrapper">
+        <button @click="toggleMode">click this to Toggle mode</button>
+      </div>
+      <div class="vue-gpickr-preview-container" slot="preview-container">
+        <div class="vue-gpickr-preview"></div>
+      </div>
+    </vue-gpickr>
   </div>
 </template>
 
@@ -64,6 +65,32 @@ export default {
   }
 };
 </script>
+
+<style lang='less' scoped>
+.vue-gpickr-preview-container {
+  width: 100%;
+  height: 50px;
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAMElEQVQ4T2N89uzZfwY8QFJSEp80A+OoAcMiDP7//483HTx//hx/Ohg1gIFx6IcBALl+VXknOCvFAAAAAElFTkSuQmCC);
+  background-size: 10px;
+  position: relative;
+  .vue-gpickr-preview {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bgStyle);
+  }
+}
+.controls-wrapper {
+  button {
+    background: red;
+  }
+}
+.gpickr-wrapper {
+  padding: 0;
+}
+</style>
 
 <style>
 body {
