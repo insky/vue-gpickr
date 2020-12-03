@@ -8,7 +8,6 @@
         <div class="vue-gpickr-stops-preview-container">
           <div class="vue-gpickr-stops-preview" :style="stopsPreviewStyle" @click.stop.prevent="addStop($event)"></div>
         </div>
-        
         <div v-if="isRadialGradient">
           <div
             class="vue-gpickr-stop"
@@ -44,6 +43,7 @@
           <div class="label">Deg&deg;</div>
         </div>
       </div>
+      <slot name="custom-container"></slot>
     </div>
   </div>
 </template>
