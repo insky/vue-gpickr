@@ -1,8 +1,10 @@
 
 <template>
   <div class="wrapper" :style="`color: #000; background: ${ gradientString }`">
+    <h2 @click="toggleGradientMode">change gradientMode</h2>
+    <color-picker v-if="!gradientMode" v-model="currentColor" :preset-colors="null" />
     <vue-gpickr 
-      v-if="gradient"
+      v-if="gradientMode && gradient"
       :isRadialGradient="isRadialGradient" 
       class="gpickr-wrapper" 
       v-model="gradient" 
@@ -28,7 +30,7 @@
 <script>
 /* eslint-disable no-unused-vars */
 // import VueGpickr from "./src/VueGpickr";
-import { VueGpickr, LinearGradient, RadialGradient, gradientParser } from './src/index'
+import { Sketch, VueGpickr, LinearGradient, RadialGradient, gradientParser } from './src/index'
 
 const linearGradient = new LinearGradient({
   angle: 0,
@@ -47,6 +49,9 @@ const radialGradient = new RadialGradient({
 
 export default {
   methods: {
+    toggleGradientMode() {
+      this.gradientMode = !this.gradientMode
+    },
     toggleMode() {
       this.isRadialGradient = !this.isRadialGradient
       this.gradient = null
@@ -72,12 +77,15 @@ export default {
   },
   components: {
     VueGpickr,
+    colorPicker: Sketch
   },
   mounted() {
     this.gradient = this.isRadialGradient ? radialGradient : linearGradient
   },
   data() {
     return {
+      gradientMode: false,
+      currentColor: 'rgb(0, 18, 48)',
       isRadialGradient: true,
       gradient: null,
       myColorList:  [

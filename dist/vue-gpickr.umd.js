@@ -5103,6 +5103,7 @@ __webpack_require__.r(__webpack_exports__);
 
 // EXPORTS
 __webpack_require__.d(__webpack_exports__, "VueGpickr", function() { return /* reexport */ VueGpickr; });
+__webpack_require__.d(__webpack_exports__, "Sketch", function() { return /* reexport */ vue_color_min["Sketch"]; });
 __webpack_require__.d(__webpack_exports__, "LinearGradient", function() { return /* reexport */ src_LinearGradient; });
 __webpack_require__.d(__webpack_exports__, "RadialGradient", function() { return /* reexport */ src_RadialGradient; });
 __webpack_require__.d(__webpack_exports__, "gradientParser", function() { return /* reexport */ parser; });
@@ -6775,6 +6776,7 @@ GradientParser.myFormat = function (obj) {
 
 /* harmony default export */ var parser = (GradientParser);
 // CONCATENATED MODULE: ./src/index.js
+
 
 
 
