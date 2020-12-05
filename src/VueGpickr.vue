@@ -127,8 +127,10 @@ export default {
   methods: {
     emitInput(angle, stops) {
       if (this.isRadialGradient) {
+        // console.log('径向渐变', new RadialGradient({ stops }));
         this.$emit('input', new RadialGradient({ stops }));
       } else {
+        // console.log('线性渐变', new LinearGradient({ angle, stops }));
         this.$emit('input', new LinearGradient({ angle, stops }));
       }
     },

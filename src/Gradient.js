@@ -27,6 +27,7 @@ class Gradient {
   }
 
   set stops(value) {
+    
     const error = Gradient._stopArrayValidator(value);
     if (error) {
       throw new GradientError(`Wrong stops format, ${error}`);

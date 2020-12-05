@@ -1,3 +1,4 @@
+
 <template>
   <div class="wrapper" :style="`color: #000; background: ${ gradientString }`">
     <vue-gpickr 
@@ -15,7 +16,7 @@
       <div class="my-color-list" slot="custom-container">
         <h3>My color:</h3>
         <ul>
-          <li v-for="(item, index) in myColorList" :key="index"
+          <li @click="handlerColorChange(item)" v-for="(item, index) in myColorList" :key="index"
             :style="`background: ${item}`"
           ></li>
         </ul>
@@ -25,26 +26,52 @@
 </template>
 
 <script>
+/* eslint-disable no-unused-vars */
 import VueGpickr from "./src/VueGpickr";
 import LinearGradient from "./src/LinearGradient";
 import RadialGradient from "./src/RadialGradient";
+import gradientParser from "./src/parser"
 
 const linearGradient = new LinearGradient({
   angle: 0,
   stops: [
     ["#0359b5", 0],
-    ["#f6ce01", 1],
+    ["#0359b5", 1],
   ],
 });
 
 const radialGradient = new RadialGradient({
   stops: [
     ["#0359b5", 0],
-    ["#f6ce01", 1],
+    ["#0359b5", 1],
   ],
 });
 
 export default {
+  methods: {
+    toggleMode() {
+      this.isRadialGradient = !this.isRadialGradient
+      this.gradient = null
+      this.$nextTick(() => {
+        this.gradient = this.isRadialGradient ? radialGradient : linearGradient
+      })
+    },
+    handlerColorChange(color) {
+      let colorObj = null
+      try {
+        colorObj = gradientParser.parse(color)
+        this.gradient = null
+        this.isRadialGradient = false
+        // console.group('--------------')
+        // console.log(color, '// color origin');
+        // console.log(colorObj, '// colorObj');
+        // console.groupEnd()
+        this.gradient = new LinearGradient(gradientParser.myFormat(colorObj[0]))
+      } catch (error) {
+        console.log(error, '// error');
+      }
+    }
+  },
   components: {
     VueGpickr,
   },
@@ -56,66 +83,6 @@ export default {
       isRadialGradient: true,
       gradient: null,
       myColorList:  [
-        "rgb(255, 255, 255)",
-        "rgb(250, 250, 250)",
-        "rgb(245, 245, 245)",
-        "rgb(232, 232, 232)",
-        "rgb(217, 217, 217)",
-        "rgb(191, 191, 191)",
-        "rgb(140, 140, 140)",
-        "rgb(89, 89, 89)",
-        "rgb(38, 38, 38)",
-        "rgb(0, 0, 0)",
-        "rgb(255, 241, 240)",
-        "rgb(255, 204, 199)",
-        "rgb(255, 163, 158)",
-        "rgb(255, 120, 117)",
-        "rgb(255, 77, 79)",
-        "rgb(245, 34, 45)",
-        "rgb(207, 19, 34)",
-        "rgb(168, 7, 26)",
-        "rgb(130, 0, 20)",
-        "rgb(92, 0, 17)",
-        "rgb(255, 251, 230)",
-        "rgb(255, 241, 184)",
-        "rgb(255, 229, 143)",
-        "rgb(255, 214, 102)",
-        "rgb(255, 197, 61)",
-        "rgb(250, 173, 20)",
-        "rgb(212, 136, 6)",
-        "rgb(173, 104, 0)",
-        "rgb(135, 77, 0)",
-        "rgb(97, 52, 0)",
-        "rgb(232, 245, 233)",
-        "rgb(201, 229, 202)",
-        "rgb(166, 213, 169)",
-        "rgb(131, 198, 134)",
-        "rgb(105, 186, 109)",
-        "rgb(80, 174, 85)",
-        "rgb(70, 159, 75)",
-        "rgb(60, 141, 64)",
-        "rgb(50, 124, 54)",
-        "rgb(30, 93, 35)",
-        "rgb(230, 247, 255)",
-        "rgb(186, 231, 255)",
-        "rgb(145, 213, 255)",
-        "rgb(105, 192, 255)",
-        "rgb(64, 169, 255)",
-        "rgb(24, 144, 255)",
-        "rgb(9, 109, 217)",
-        "rgb(0, 80, 179)",
-        "rgb(0, 58, 140)",
-        "rgb(0, 39, 102)",
-        "rgb(243, 229, 245)",
-        "rgb(224, 191, 230)",
-        "rgb(205, 149, 214)",
-        "rgb(185, 107, 198)",
-        "rgb(170, 76, 186)",
-        "rgb(155, 47, 174)",
-        "rgb(141, 44, 168)",
-        "rgb(122, 39, 160)",
-        "rgb(105, 35, 152)",
-        "rgb(74, 28, 138)",
         "linear-gradient(rgb(180, 236, 81) 0%, rgb(66, 147, 33) 100%)",
         "linear-gradient(rgb(250, 217, 97) 0%, rgb(247, 107, 28) 100%)",
         "linear-gradient(rgb(245, 81, 95) 0%, rgb(159, 4, 27) 100%)",
@@ -134,13 +101,10 @@ export default {
         "linear-gradient(66deg, #ebb708 12%,rgba(0, 186, 255, 0) 100%)",
         "linear-gradient(66deg, rgb(235, 8, 8) 0%,rgba(0, 186, 255, 0) 100%)",
         "linear-gradient(66deg, #eb0808 0%,rgba(18, 75, 72, 0.78) 11%,rgba(0, 186, 255, 0) 100%)",
-        "linear-gradient(90deg, #172c14 0%,rgba(18, 75, 72, 0.78) 0%,rgba(0, 186, 255, 0) 100%)",
-        "linear-gradient(90deg, #172c14 0%,rgba(18, 75, 72, 0.78) 0%,rgba(0, 186, 255, 0) 100%)",
         "linear-gradient(0deg, #c13636 0%,rgba(187, 32, 32, 0.5) 100%)",
         "linear-gradient(90deg, rgb(243, 12, 37) 0%,rgba(0, 186, 255, 0) 100%)",
-        "linear-gradient(90deg, #f30c25 0%,rgba(0, 186, 255, 0) 100%)",
-        "linear-gradient(90deg, #ff0051 0%,rgba(0, 186, 255, 0) 100%)",
-        "linear-gradient(90deg, #00baff 0%,rgba(0, 186, 255, 0) 100%)"
+        "linear-gradient(90deg, #00baff 0%,rgba(0, 186, 255, 0) 100%)",
+        "linear-gradient(90deg, #fff 0%,rgba(0, 0, 0, 1) 100%)"
       ]
     };
   },
@@ -149,13 +113,17 @@ export default {
       return (this.gradient || '').toString() 
     }
   },
-  methods: {
-    toggleMode() {
-      this.isRadialGradient = !this.isRadialGradient
-      this.gradient = null
-      this.$nextTick(() => {
-        this.gradient = this.isRadialGradient ? radialGradient : linearGradient
-      })
+  watch:{
+    gradient: {
+      handler(colorObj) {
+        if (colorObj !== null) {
+          console.log(colorObj.toString(), '// colorObj');
+          console.log(colorObj.toRaw(), '//toRaw');
+          console.log(gradientParser.parse(colorObj.toString()), '// parser');
+          console.log(gradientParser.myFormat(gradientParser.parse(colorObj.toString())[0]), '// format');
+        }
+      },
+      deep: true
     }
   }
 };
