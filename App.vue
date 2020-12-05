@@ -27,10 +27,8 @@
 
 <script>
 /* eslint-disable no-unused-vars */
-import VueGpickr from "./src/VueGpickr";
-import LinearGradient from "./src/LinearGradient";
-import RadialGradient from "./src/RadialGradient";
-import gradientParser from "./src/parser"
+// import VueGpickr from "./src/VueGpickr";
+import { VueGpickr, LinearGradient, RadialGradient, gradientParser } from './src/index'
 
 const linearGradient = new LinearGradient({
   angle: 0,

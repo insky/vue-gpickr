@@ -274,6 +274,49 @@ module.exports = ''.repeat || function repeat(count) {
 
 /***/ }),
 
+/***/ "159b":
+/***/ (function(module, exports, __webpack_require__) {
+
+var global = __webpack_require__("da84");
+var DOMIterables = __webpack_require__("fdbc");
+var forEach = __webpack_require__("17c2");
+var createNonEnumerableProperty = __webpack_require__("9112");
+
+for (var COLLECTION_NAME in DOMIterables) {
+  var Collection = global[COLLECTION_NAME];
+  var CollectionPrototype = Collection && Collection.prototype;
+  // some Chrome versions have non-configurable methods on DOMTokenList
+  if (CollectionPrototype && CollectionPrototype.forEach !== forEach) try {
+    createNonEnumerableProperty(CollectionPrototype, 'forEach', forEach);
+  } catch (error) {
+    CollectionPrototype.forEach = forEach;
+  }
+}
+
+
+/***/ }),
+
+/***/ "17c2":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var $forEach = __webpack_require__("b727").forEach;
+var arrayMethodIsStrict = __webpack_require__("a640");
+var arrayMethodUsesToLength = __webpack_require__("ae40");
+
+var STRICT_METHOD = arrayMethodIsStrict('forEach');
+var USES_TO_LENGTH = arrayMethodUsesToLength('forEach');
+
+// `Array.prototype.forEach` method implementation
+// https://tc39.github.io/ecma262/#sec-array.prototype.foreach
+module.exports = (!STRICT_METHOD || !USES_TO_LENGTH) ? function forEach(callbackfn /* , thisArg */) {
+  return $forEach(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
+} : [].forEach;
+
+
+/***/ }),
+
 /***/ "19aa":
 /***/ (function(module, exports) {
 
@@ -868,6 +911,23 @@ module.exports = function (value) {
   }
   return +value;
 };
+
+
+/***/ }),
+
+/***/ "4160":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var $ = __webpack_require__("23e7");
+var forEach = __webpack_require__("17c2");
+
+// `Array.prototype.forEach` method
+// https://tc39.github.io/ecma262/#sec-array.prototype.foreach
+$({ target: 'Array', proto: true, forced: [].forEach != forEach }, {
+  forEach: forEach
+});
 
 
 /***/ }),
@@ -3320,6 +3380,101 @@ module.exports = DESCRIPTORS ? function (object, key, value) {
 
 /***/ }),
 
+/***/ "9263":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var regexpFlags = __webpack_require__("ad6d");
+var stickyHelpers = __webpack_require__("9f7f");
+
+var nativeExec = RegExp.prototype.exec;
+// This always refers to the native implementation, because the
+// String#replace polyfill uses ./fix-regexp-well-known-symbol-logic.js,
+// which loads this file before patching the method.
+var nativeReplace = String.prototype.replace;
+
+var patchedExec = nativeExec;
+
+var UPDATES_LAST_INDEX_WRONG = (function () {
+  var re1 = /a/;
+  var re2 = /b*/g;
+  nativeExec.call(re1, 'a');
+  nativeExec.call(re2, 'a');
+  return re1.lastIndex !== 0 || re2.lastIndex !== 0;
+})();
+
+var UNSUPPORTED_Y = stickyHelpers.UNSUPPORTED_Y || stickyHelpers.BROKEN_CARET;
+
+// nonparticipating capturing group, copied from es5-shim's String#split patch.
+var NPCG_INCLUDED = /()??/.exec('')[1] !== undefined;
+
+var PATCH = UPDATES_LAST_INDEX_WRONG || NPCG_INCLUDED || UNSUPPORTED_Y;
+
+if (PATCH) {
+  patchedExec = function exec(str) {
+    var re = this;
+    var lastIndex, reCopy, match, i;
+    var sticky = UNSUPPORTED_Y && re.sticky;
+    var flags = regexpFlags.call(re);
+    var source = re.source;
+    var charsAdded = 0;
+    var strCopy = str;
+
+    if (sticky) {
+      flags = flags.replace('y', '');
+      if (flags.indexOf('g') === -1) {
+        flags += 'g';
+      }
+
+      strCopy = String(str).slice(re.lastIndex);
+      // Support anchored sticky behavior.
+      if (re.lastIndex > 0 && (!re.multiline || re.multiline && str[re.lastIndex - 1] !== '\n')) {
+        source = '(?: ' + source + ')';
+        strCopy = ' ' + strCopy;
+        charsAdded++;
+      }
+      // ^(? + rx + ) is needed, in combination with some str slicing, to
+      // simulate the 'y' flag.
+      reCopy = new RegExp('^(?:' + source + ')', flags);
+    }
+
+    if (NPCG_INCLUDED) {
+      reCopy = new RegExp('^' + source + '$(?!\\s)', flags);
+    }
+    if (UPDATES_LAST_INDEX_WRONG) lastIndex = re.lastIndex;
+
+    match = nativeExec.call(sticky ? reCopy : re, strCopy);
+
+    if (sticky) {
+      if (match) {
+        match.input = match.input.slice(charsAdded);
+        match[0] = match[0].slice(charsAdded);
+        match.index = re.lastIndex;
+        re.lastIndex += match[0].length;
+      } else re.lastIndex = 0;
+    } else if (UPDATES_LAST_INDEX_WRONG && match) {
+      re.lastIndex = re.global ? match.index + match[0].length : lastIndex;
+    }
+    if (NPCG_INCLUDED && match && match.length > 1) {
+      // Fix browsers whose `exec` methods don't consistently return `undefined`
+      // for NPCG, like IE8. NOTE: This doesn' work for /(.?)?/
+      nativeReplace.call(match[0], reCopy, function () {
+        for (i = 1; i < arguments.length - 2; i++) {
+          if (arguments[i] === undefined) match[i] = undefined;
+        }
+      });
+    }
+
+    return match;
+  };
+}
+
+module.exports = patchedExec;
+
+
+/***/ }),
+
 /***/ "94ca":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -3463,6 +3618,37 @@ module.exports = function (IteratorConstructor, NAME, next) {
   Iterators[TO_STRING_TAG] = returnThis;
   return IteratorConstructor;
 };
+
+
+/***/ }),
+
+/***/ "9f7f":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var fails = __webpack_require__("d039");
+
+// babel-minify transpiles RegExp('a', 'y') -> /a/y and it causes SyntaxError,
+// so we use an intermediate function.
+function RE(s, f) {
+  return RegExp(s, f);
+}
+
+exports.UNSUPPORTED_Y = fails(function () {
+  // babel-minify transpiles RegExp('a', 'y') -> /a/y and it causes SyntaxError
+  var re = RE('a', 'y');
+  re.lastIndex = 2;
+  return re.exec('abcd') != null;
+});
+
+exports.BROKEN_CARET = fails(function () {
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=773687
+  var re = RE('^r', 'gy');
+  re.lastIndex = 2;
+  return re.exec('str') != null;
+});
 
 
 /***/ }),
@@ -3686,6 +3872,21 @@ if (isForced(NUMBER, !NativeNumber(' 0o1') || !NativeNumber('0b1') || NativeNumb
   NumberPrototype.constructor = NumberWrapper;
   redefine(global, NUMBER, NumberWrapper);
 }
+
+
+/***/ }),
+
+/***/ "ac1f":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var $ = __webpack_require__("23e7");
+var exec = __webpack_require__("9263");
+
+$({ target: 'RegExp', proto: true, forced: /./.exec !== exec }, {
+  exec: exec
+});
 
 
 /***/ }),
@@ -4895,6 +5096,7 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.d(__webpack_exports__, "VueGpickr", function() { return /* reexport */ VueGpickr; });
 __webpack_require__.d(__webpack_exports__, "LinearGradient", function() { return /* reexport */ src_LinearGradient; });
 __webpack_require__.d(__webpack_exports__, "RadialGradient", function() { return /* reexport */ src_RadialGradient; });
+__webpack_require__.d(__webpack_exports__, "gradientParser", function() { return /* reexport */ parser; });
 
 // CONCATENATED MODULE: ./node_modules/@vue/cli-service/lib/commands/build/setPublicPath.js
 // This file is imported into lib/wc client bundles.
@@ -6047,7 +6249,524 @@ var component = normalizeComponent(
 )
 
 /* harmony default export */ var VueGpickr = (component.exports);
+// EXTERNAL MODULE: ./node_modules/core-js/modules/es.array.for-each.js
+var es_array_for_each = __webpack_require__("4160");
+
+// EXTERNAL MODULE: ./node_modules/core-js/modules/es.regexp.exec.js
+var es_regexp_exec = __webpack_require__("ac1f");
+
+// EXTERNAL MODULE: ./node_modules/core-js/modules/web.dom-collections.for-each.js
+var web_dom_collections_for_each = __webpack_require__("159b");
+
+// CONCATENATED MODULE: ./src/parser/index.js
+
+
+
+
+
+
+
+
+
+/* eslint-disable no-debugger */
+
+/* eslint-disable no-unused-vars */
+
+/* eslint-disable no-useless-escape */
+
+/* eslint-disable no-undef */
+var GradientParser = GradientParser || {};
+
+GradientParser.parse = function () {
+  var tokens = {
+    linearGradient: /^(\-(webkit|o|ms|moz)\-)?(linear\-gradient)/i,
+    repeatingLinearGradient: /^(\-(webkit|o|ms|moz)\-)?(repeating\-linear\-gradient)/i,
+    radialGradient: /^(\-(webkit|o|ms|moz)\-)?(radial\-gradient)/i,
+    repeatingRadialGradient: /^(\-(webkit|o|ms|moz)\-)?(repeating\-radial\-gradient)/i,
+    sideOrCorner: /^to (left (top|bottom)|right (top|bottom)|left|right|top|bottom)/i,
+    extentKeywords: /^(closest\-side|closest\-corner|farthest\-side|farthest\-corner|contain|cover)/,
+    positionKeywords: /^(left|center|right|top|bottom)/i,
+    pixelValue: /^(-?(([0-9]*\.[0-9]+)|([0-9]+\.?)))px/,
+    percentageValue: /^(-?(([0-9]*\.[0-9]+)|([0-9]+\.?)))\%/,
+    emValue: /^(-?(([0-9]*\.[0-9]+)|([0-9]+\.?)))em/,
+    angleValue: /^(-?(([0-9]*\.[0-9]+)|([0-9]+\.?)))deg/,
+    startCall: /^\(/,
+    endCall: /^\)/,
+    comma: /^,/,
+    hexColor: /^\#([0-9a-fA-F]+)/,
+    literalColor: /^([a-zA-Z]+)/,
+    rgbColor: /^rgb/i,
+    rgbaColor: /^rgba/i,
+    number: /^(([0-9]*\.[0-9]+)|([0-9]+\.?))/
+  };
+  var input = '';
+  var result = null;
+
+  function error(msg) {
+    var err = new Error(input + ': ' + msg);
+    err.source = input;
+    throw err;
+  }
+
+  function getAST() {
+    var ast = matchListDefinitions();
+
+    if (input.length > 0) {
+      error('Invalid input not EOF');
+    }
+
+    return ast;
+  }
+
+  function matchListDefinitions() {
+    return matchListing(matchDefinition);
+  }
+
+  function matchDefinition() {
+    return matchGradient('linear-gradient', tokens.linearGradient, matchLinearOrientation) || matchGradient('repeating-linear-gradient', tokens.repeatingLinearGradient, matchLinearOrientation) || matchGradient('radial-gradient', tokens.radialGradient, matchListRadialOrientations) || matchGradient('repeating-radial-gradient', tokens.repeatingRadialGradient, matchListRadialOrientations);
+  }
+
+  function matchGradient(gradientType, pattern, orientationMatcher) {
+    return matchCall(pattern, function (captures) {
+      var orientation = orientationMatcher();
+
+      if (orientation) {
+        if (!scan(tokens.comma)) {
+          error('Missing comma before color stops');
+        }
+      }
+
+      var stops = matchListing(matchColorStop);
+      return {
+        type: gradientType,
+        orientation: orientation,
+        colorStops: stops,
+        stops: stops,
+        angle: orientation && orientation.value ? Number(orientation.value) : null
+      };
+    });
+  }
+
+  function matchCall(pattern, callback) {
+    var captures = scan(pattern);
+
+    if (captures) {
+      if (!scan(tokens.startCall)) {
+        error('Missing (');
+      }
+
+      result = callback(captures);
+
+      if (!scan(tokens.endCall)) {
+        error('Missing )');
+      }
+
+      return result;
+    }
+  }
+
+  function matchLinearOrientation() {
+    return matchSideOrCorner() || matchAngle();
+  }
+
+  function matchSideOrCorner() {
+    return match('directional', tokens.sideOrCorner, 1);
+  }
+
+  function matchAngle() {
+    return match('angular', tokens.angleValue, 1);
+  }
+
+  function matchListRadialOrientations() {
+    var radialOrientations,
+        radialOrientation = matchRadialOrientation(),
+        lookaheadCache;
+
+    if (radialOrientation) {
+      radialOrientations = [];
+      radialOrientations.push(radialOrientation);
+      lookaheadCache = input;
+
+      if (scan(tokens.comma)) {
+        radialOrientation = matchRadialOrientation();
+
+        if (radialOrientation) {
+          radialOrientations.push(radialOrientation);
+        } else {
+          input = lookaheadCache;
+        }
+      }
+    }
+
+    return radialOrientations;
+  }
+
+  function matchRadialOrientation() {
+    var radialType = matchCircle() || matchEllipse();
+
+    if (radialType) {
+      radialType.at = matchAtPosition();
+    } else {
+      var extent = matchExtentKeyword();
+
+      if (extent) {
+        radialType = extent;
+        var positionAt = matchAtPosition();
+
+        if (positionAt) {
+          radialType.at = positionAt;
+        }
+      } else {
+        var defaultPosition = matchPositioning();
+
+        if (defaultPosition) {
+          radialType = {
+            type: 'default-radial',
+            at: defaultPosition
+          };
+        }
+      }
+    }
+
+    return radialType;
+  }
+
+  function matchCircle() {
+    var circle = match('shape', /^(circle)/i, 0);
+
+    if (circle) {
+      circle.style = matchLength() || matchExtentKeyword();
+    }
+
+    return circle;
+  }
+
+  function matchEllipse() {
+    var ellipse = match('shape', /^(ellipse)/i, 0);
+
+    if (ellipse) {
+      ellipse.style = matchDistance() || matchExtentKeyword();
+    }
+
+    return ellipse;
+  }
+
+  function matchExtentKeyword() {
+    return match('extent-keyword', tokens.extentKeywords, 1);
+  }
+
+  function matchAtPosition() {
+    if (match('position', /^at/, 0)) {
+      var positioning = matchPositioning();
+
+      if (!positioning) {
+        error('Missing positioning value');
+      }
+
+      return positioning;
+    }
+  }
+
+  function matchPositioning() {
+    var location = matchCoordinates();
+
+    if (location.x || location.y) {
+      return {
+        type: 'position',
+        value: location
+      };
+    }
+  }
+
+  function matchCoordinates() {
+    return {
+      x: matchDistance(),
+      y: matchDistance()
+    };
+  }
+
+  function matchListing(matcher) {
+    var captures = matcher(),
+        result = [];
+
+    if (captures) {
+      result.push(captures);
+
+      while (scan(tokens.comma)) {
+        captures = matcher();
+
+        if (captures) {
+          result.push(captures);
+        } else {
+          error('One extra comma');
+        }
+      }
+    }
+
+    return result;
+  }
+
+  function matchColorStop() {
+    var color = matchColor();
+
+    if (!color) {
+      error('Expected color definition');
+    }
+
+    color.length = matchDistance();
+    return color;
+  }
+
+  function matchColor() {
+    return matchHexColor() || matchRGBAColor() || matchRGBColor() || matchLiteralColor();
+  }
+
+  function matchLiteralColor() {
+    return match('literal', tokens.literalColor, 0);
+  }
+
+  function matchHexColor() {
+    return match('hex', tokens.hexColor, 1);
+  }
+
+  function matchRGBColor() {
+    return matchCall(tokens.rgbColor, function () {
+      return {
+        type: 'rgb',
+        value: matchListing(matchNumber)
+      };
+    });
+  }
+
+  function matchRGBAColor() {
+    return matchCall(tokens.rgbaColor, function () {
+      return {
+        type: 'rgba',
+        value: matchListing(matchNumber)
+      };
+    });
+  }
+
+  function matchNumber() {
+    return scan(tokens.number)[1];
+  }
+
+  function matchDistance() {
+    return match('%', tokens.percentageValue, 1) || matchPositionKeyword() || matchLength();
+  }
+
+  function matchPositionKeyword() {
+    return match('position-keyword', tokens.positionKeywords, 1);
+  }
+
+  function matchLength() {
+    return match('px', tokens.pixelValue, 1) || match('em', tokens.emValue, 1);
+  }
+
+  function match(type, pattern, captureIndex) {
+    var captures = scan(pattern);
+
+    if (captures) {
+      return {
+        type: type,
+        value: captures[captureIndex]
+      };
+    }
+  }
+
+  function scan(regexp) {
+    var captures, blankCaptures;
+    blankCaptures = /^[\n\r\t\s]+/.exec(input);
+
+    if (blankCaptures) {
+      consume(blankCaptures[0].length);
+    }
+
+    captures = regexp.exec(input);
+
+    if (captures) {
+      consume(captures[0].length);
+    }
+
+    return captures;
+  }
+
+  function consume(size) {
+    input = input.substr(size);
+  }
+
+  return function (code) {
+    input = code.toString();
+    return getAST();
+  };
+}();
+
+GradientParser.stringify = function () {
+  var result = null;
+  var visitor = {
+    'visit_linear-gradient': function visit_linearGradient(node) {
+      return visitor.visit_gradient(node);
+    },
+    'visit_repeating-linear-gradient': function visit_repeatingLinearGradient(node) {
+      return visitor.visit_gradient(node);
+    },
+    'visit_radial-gradient': function visit_radialGradient(node) {
+      return visitor.visit_gradient(node);
+    },
+    'visit_repeating-radial-gradient': function visit_repeatingRadialGradient(node) {
+      return visitor.visit_gradient(node);
+    },
+    'visit_gradient': function visit_gradient(node) {
+      var orientation = visitor.visit(node.orientation);
+
+      if (orientation) {
+        orientation += ', ';
+      }
+
+      return node.type + '(' + orientation + visitor.visit(node.colorStops) + ')';
+    },
+    'visit_shape': function visit_shape(node) {
+      var result = node.value,
+          at = visitor.visit(node.at),
+          style = visitor.visit(node.style);
+
+      if (style) {
+        result += ' ' + style;
+      }
+
+      if (at) {
+        result += ' at ' + at;
+      }
+
+      return result;
+    },
+    'visit_default-radial': function visit_defaultRadial(node) {
+      var result = '',
+          at = visitor.visit(node.at);
+
+      if (at) {
+        result += at;
+      }
+
+      return result;
+    },
+    'visit_extent-keyword': function visit_extentKeyword(node) {
+      var result = node.value,
+          at = visitor.visit(node.at);
+
+      if (at) {
+        result += ' at ' + at;
+      }
+
+      return result;
+    },
+    'visit_position-keyword': function visit_positionKeyword(node) {
+      return node.value;
+    },
+    'visit_position': function visit_position(node) {
+      return visitor.visit(node.value.x) + ' ' + visitor.visit(node.value.y);
+    },
+    'visit_%': function visit_(node) {
+      return node.value + '%';
+    },
+    'visit_em': function visit_em(node) {
+      return node.value + 'em';
+    },
+    'visit_px': function visit_px(node) {
+      return node.value + 'px';
+    },
+    'visit_literal': function visit_literal(node) {
+      return visitor.visit_color(node.value, node);
+    },
+    'visit_hex': function visit_hex(node) {
+      return visitor.visit_color('#' + node.value, node);
+    },
+    'visit_rgb': function visit_rgb(node) {
+      return visitor.visit_color('rgb(' + node.value.join(', ') + ')', node);
+    },
+    'visit_rgba': function visit_rgba(node) {
+      return visitor.visit_color('rgba(' + node.value.join(', ') + ')', node);
+    },
+    'visit_color': function visit_color(resultColor, node) {
+      var result = resultColor,
+          length = visitor.visit(node.length);
+
+      if (length) {
+        result += ' ' + length;
+      }
+
+      return result;
+    },
+    'visit_angular': function visit_angular(node) {
+      return node.value + 'deg';
+    },
+    'visit_directional': function visit_directional(node) {
+      return 'to ' + node.value;
+    },
+    'visit_array': function visit_array(elements) {
+      var result = '',
+          size = elements.length;
+      elements.forEach(function (element, i) {
+        result += visitor.visit(element);
+
+        if (i < size - 1) {
+          result += ', ';
+        }
+      });
+      return result;
+    },
+    'visit': function visit(element) {
+      if (!element) {
+        return '';
+      }
+
+      if (element instanceof Array) {
+        return visitor.visit_array(element, result);
+      } else if (element.type) {
+        var nodeVisitor = visitor['visit_' + element.type];
+
+        if (nodeVisitor) {
+          return nodeVisitor(element);
+        } else {
+          throw Error('Missing visitor visit_' + element.type);
+        }
+      } else {
+        throw Error('Invalid node.');
+      }
+    }
+  };
+  return function (root) {
+    return visitor.visit(root);
+  };
+}();
+
+GradientParser.myFormat = function (obj) {
+  if (!obj.stops || obj.stops == null) return;
+  var res = {
+    stops: []
+  };
+
+  if (obj.angle !== null) {
+    res.angle = obj.angle;
+  }
+
+  res.stops = obj.stops.map(function (it) {
+    var colorString = '';
+
+    if (it.type !== 'hex') {
+      colorString = it.type + '(' + it.value.toString() + ')';
+    } else {
+      colorString = '#' + it.value.toString();
+    }
+
+    return [colorString, it.length.type === '%' ? it.length.value / 100 : it.length.value];
+  });
+  return res;
+};
+
+/* harmony default export */ var parser = (GradientParser);
 // CONCATENATED MODULE: ./src/index.js
+
 
 
 
