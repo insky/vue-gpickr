@@ -1,6 +1,6 @@
 {
   "name": "vue-gpickr",
-  "version": "0.2.7",
+  "version": "0.3.0",
   "private": false,
   "description": "Vue gradient picker",
   "keywords": [
@@ -32,20 +32,20 @@
   },
   "dependencies": {
     "tinycolor2": "^1.4.2",
-    "vue": "^2.6.12",
-    "vue-color": "^2.7.1"
+    "vue": "^2.6.14",
+    "vue-color": "^2.8.1"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-class-properties": "^7.12.1",
-    "@vue/cli-plugin-babel": "~4.5.8",
-    "@vue/cli-plugin-eslint": "~4.5.8",
-    "@vue/cli-service": "~4.5.8",
+    "@babel/plugin-proposal-class-properties": "^7.14.5",
+    "@vue/cli-plugin-babel": "^4.5.14",
+    "@vue/cli-plugin-eslint": "^4.5.14",
+    "@vue/cli-service": "^4.5.14",
     "babel-eslint": "^10.1.0",
-    "eslint": "^7.12.1",
-    "eslint-plugin-vue": "^7.1.0",
-    "node-sass": "^5.0.0",
-    "sass-loader": "^10.0.5",
-    "vue-template-compiler": "^2.6.12"
+    "eslint": "^6.8.0",
+    "eslint-plugin-vue": "^7.20.0",
+    "node-sass": "^6.0.1",
+    "sass-loader": "^10.2.0",
+    "vue-template-compiler": "^2.6.14"
   },
   "eslintConfig": {
     "root": true,
