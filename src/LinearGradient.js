@@ -9,8 +9,8 @@ class LinearGradient extends Gradient {
   #type = 'linear';
   #angle = null;
 
-  constructor({ angle = 0, stops = undefined } = {}) {
-    super({ stops })
+  constructor({ angle = 0, stops = undefined, limit = undefined } = {}) {
+    super({ stops, limit })
     this.#type = 'linear';
     this.#angle = angle;
   }
@@ -67,7 +67,8 @@ class LinearGradient extends Gradient {
     return {
       type: this.type,
       angle: this.angle,
-      stops
+      stops,
+      limit: this.limit
     }
   }
 }

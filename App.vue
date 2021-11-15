@@ -34,6 +34,7 @@ export default {
         ["#0359b5", 0],
         ["#f6ce01", 1],
       ],
+      limit: 5
     });
 
     return {

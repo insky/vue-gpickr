@@ -78,7 +78,7 @@ export default {
           degrees = 360;
         }
 
-        this.emitInput(degrees, this.stops);
+        this.emitInput(degrees, this.stops, this.limit);
       }
     },
     stops() {
@@ -96,16 +96,19 @@ export default {
       },
       set(val) {
         this.stops[this.currentStopIdx][COLOR] = val.hex8;
-        this.emitInput(this.angle, this.stops);
+        this.emitInput(this.angle, this.stops, this.limit);
       }
     },
     orderedStops() {
       return this.stops.slice().sort((a, b) => a[POSITION] - b[POSITION]);
+    },
+    limit() {
+      return this.value.limit
     }
   },
   methods: {
-    emitInput(angle, stops) {
-      this.$emit('input', new LinearGradient({ angle, stops }));
+    emitInput(angle, stops, limit) {
+      this.$emit('input', new LinearGradient({ angle, stops, limit }));
     },
     getGradientString(angle) {
       const stops = this.orderedStops.map(stop => `${stop[COLOR].toString()} ${stop[POSITION] * 100}%`).join(',');
@@ -119,11 +122,12 @@ export default {
       return { left: `${stop[POSITION] * 100}%`, color: stop[COLOR].toString() };
     },
     addStop(event) {
+      if ( this.stops.length >= this.limit ) return;
       const position = Math.round(event.offsetX * 100 / event.target.offsetWidth) / 100;
       const index = this.stops.length;
       this.stops.push([this.currentColor, position]);
       this.setCurrentStopIdx(index);
-      this.emitInput(this.angle, this.stops);
+      this.emitInput(this.angle, this.stops, this.limit);
     },
     removeCurrentStop() {
       this.stops.splice(this.currentStopIdx, 1);
@@ -131,7 +135,7 @@ export default {
         this.setCurrentStopIdx(this.currentStopIdx - 1);
       }
       this.unbindEventListeners();
-      this.emitInput(this.angle, this.stops);
+      this.emitInput(this.angle, this.stops, this.limit);
     },
     setContainerBoundingClientRectangle() {
       this.containerBoundingClientRectangle = this.$refs.stopsContainer.getBoundingClientRect();
@@ -167,7 +171,7 @@ export default {
       const previousPosition = this.stops[this.currentStopIdx][POSITION];
       this.stops[this.currentStopIdx][POSITION] = position;
       if (previousPosition != position) {
-        this.emitInput(this.angle, this.stops);
+        this.emitInput(this.angle, this.stops, this.limit);
       }
     },
     handleMouseDown (index) {

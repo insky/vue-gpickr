@@ -17,9 +17,11 @@ const POSITION = 1;
 
 class Gradient {
   #stops = [];
+  #limit = null;
 
-  constructor({ stops = defaultStops } = {}) {
+  constructor({ stops = defaultStops, limit = null } = {}) {
     this.#stops = stops;
+    this.#limit = limit;
   }
 
   get stops() {
@@ -32,6 +34,10 @@ class Gradient {
       throw new GradientError(`Wrong stops format, ${error}`);
     }
     this.#stops = value;
+  }
+
+  get limit() {
+    return this.#limit;
   }
 
   static _stopPointValidator(value) {
@@ -76,6 +82,9 @@ class Gradient {
   }
 
   addStop(value) {
+    if (this.#stops.length >= this.#limit) {
+      throw new GradientError('Too many stop points');
+    }
     const error = Gradient._stopPointValidator(value);
     if (error) {
       throw new GradientError(`Wrong stop format, ${error}`);
