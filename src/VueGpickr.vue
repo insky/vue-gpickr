@@ -122,7 +122,9 @@ export default {
       return { left: `${stop[POSITION] * 100}%`, color: stop[COLOR].toString() };
     },
     addStop(event) {
-      if ( this.stops.length >= this.limit ) return;
+      if ( this.limit && this.stops.length >= this.limit ) {
+        return;
+      }
       const position = Math.round(event.offsetX * 100 / event.target.offsetWidth) / 100;
       const index = this.stops.length;
       this.stops.push([this.currentColor, position]);

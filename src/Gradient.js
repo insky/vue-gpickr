@@ -82,7 +82,7 @@ class Gradient {
   }
 
   addStop(value) {
-    if (this.#stops.length >= this.#limit) {
+    if (this.#limit && this.#stops.length >= this.#limit) {
       throw new GradientError('Too many stop points');
     }
     const error = Gradient._stopPointValidator(value);
