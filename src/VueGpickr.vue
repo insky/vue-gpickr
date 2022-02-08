@@ -50,7 +50,7 @@ export default {
     colorPicker: Sketch
   },
   props: {
-    value: {
+    modelValue: {
       type: LinearGradient,
       default: () => new LinearGradient()
     }
@@ -61,13 +61,13 @@ export default {
       currentStopIdx: 0
     };
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.unbindEventListeners();
   },
   computed: {
     angle: {
       get() {
-        return this.value.angle;
+        return this.modelValue.angle;
       },
       set(val) {
         let degrees = parseInt(val, 10) || 0;
@@ -82,7 +82,7 @@ export default {
       }
     },
     stops() {
-      return this.value.stops.slice().map(stop => [...stop]);
+      return this.modelValue.stops.slice().map(stop => [...stop]);
     },
     previewStyle() {
       return { background: this.getGradientString(this.angle) };
@@ -103,12 +103,12 @@ export default {
       return this.stops.slice().sort((a, b) => a[POSITION] - b[POSITION]);
     },
     limit() {
-      return this.value.limit
+      return this.modelValue.limit
     }
   },
   methods: {
     emitInput(angle, stops, limit) {
-      this.$emit('input', new LinearGradient({ angle, stops, limit }));
+      this.$emit('update:modelValue', new LinearGradient({ angle, stops, limit }));
     },
     getGradientString(angle) {
       const stops = this.orderedStops.map(stop => `${stop[COLOR].toString()} ${stop[POSITION] * 100}%`).join(',');

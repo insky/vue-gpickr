@@ -5,18 +5,17 @@ const COLOR = 0;
 const POSITION = 1;
 
 class LinearGradient extends Gradient {
-
-  #type = 'linear';
-  #angle = null;
+  type = 'linear';
+  angle = null;
 
   constructor({ angle = 0, stops = undefined, limit = undefined } = {}) {
     super({ stops, limit })
-    this.#type = 'linear';
-    this.#angle = angle;
+    this.type = 'linear';
+    this.angle = angle;
   }
 
   get angle() {
-    return this.#angle;
+    return this.angle;
   }
 
   set angle(value) {
@@ -24,11 +23,11 @@ class LinearGradient extends Gradient {
     if (error) {
       throw new GradientError(`Wrong angle value, ${error}`);
     }
-    this.#angle = value;
+    this.angle = value;
   }
 
   get type() {
-    return this.#type;
+    return this.type;
   }
 
   static _angleValidator(value) {

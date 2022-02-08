@@ -16,16 +16,16 @@ const COLOR = 0;
 const POSITION = 1;
 
 class Gradient {
-  #stops = [];
-  #limit = null;
+  stops = [];
+  limit = null;
 
   constructor({ stops = defaultStops, limit = null } = {}) {
-    this.#stops = stops;
-    this.#limit = limit;
+    this.stops = stops;
+    this.limit = limit;
   }
 
   get stops() {
-    return this.#stops;
+    return this.stops;
   }
 
   set stops(value) {
@@ -33,11 +33,11 @@ class Gradient {
     if (error) {
       throw new GradientError(`Wrong stops format, ${error}`);
     }
-    this.#stops = value;
+    this.stops = value;
   }
 
   get limit() {
-    return this.#limit;
+    return this.limit;
   }
 
   static _stopPointValidator(value) {
@@ -82,7 +82,7 @@ class Gradient {
   }
 
   addStop(value) {
-    if (this.#limit && this.#stops.length >= this.#limit) {
+    if (this.limit && this.stops.length >= this.limit) {
       throw new GradientError('Too many stop points');
     }
     const error = Gradient._stopPointValidator(value);
@@ -90,19 +90,19 @@ class Gradient {
       throw new GradientError(`Wrong stop format, ${error}`);
     }
 
-    this.#stops.push(value);
+    this.stops.push(value);
   }
 
   removeStopByIndex(index) {
-    if (this.#stops.length < 3) {
+    if (this.stops.length < 3) {
       throw new GradientError('Can\'t remove stop point');
     }
 
-    if (this.#stops.length <= index) {
+    if (this.stops.length <= index) {
       throw new GradientError('Can\'t remove stop point');
     }
 
-    this.#stops.splice(index, 1);
+    this.stops.splice(index, 1);
   }
 }
 
