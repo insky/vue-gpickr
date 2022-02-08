@@ -208,24 +208,22 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-::v-deep {
-  .vc-sketch {
-    box-shadow: none;
-    padding: 10px;
-    .vc-sketch-presets {
-      display: none;
-    }
-    .vc-sketch-saturation-wrap {
-      overflow: visible;
-    }
-    .vc-saturation-pointer {
-      margin-top: -2px;
-    }
-    .vc-sketch-field {
-      input {
-        text-align: center;
-        padding: 4px 0 3px;
-      }
+:deep(.vc-sketch) {
+  box-shadow: none;
+  padding: 10px;
+  .vc-sketch-presets {
+    display: none;
+  }
+  .vc-sketch-saturation-wrap {
+    overflow: visible;
+  }
+  .vc-saturation-pointer {
+    margin-top: -2px;
+  }
+  .vc-sketch-field {
+    input {
+      text-align: center;
+      padding: 4px 0 3px;
     }
   }
 }

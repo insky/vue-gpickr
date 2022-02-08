@@ -57,9 +57,12 @@ export default {
   left: 0;
   right: 0;
   min-height: 300px;
-  background: linear-gradient(90deg, #0359b5ff 0%, #f6ce01ff 100%);
-  opacity: 0.5;
+  background: v-bind(gradient);
   z-index: 0;
+}
+h1 {
+  position: relative;
+  z-index: 1;
 }
 .gpickr {
   margin: 30px 0;
