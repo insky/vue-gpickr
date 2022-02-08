@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import { Sketch } from "vue-color";
+import { Sketch } from "@ckpack/vue-color";
 import LinearGradient from './LinearGradient';
 
 const COLOR = 0;
