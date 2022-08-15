@@ -4,14 +4,13 @@
       class="github-fork-ribbon"
       href="https://github.com/insky/vue-gpickr"
       title="Fork me on GitHub"
-      >Fork me on GitHub</a
-    >
+    >Fork me on GitHub</a>
 
     <h1>vue-gpickr</h1>
 
-    <vue-gpickr class="gpickr" v-model="gradient" />
+    <vue-gpickr v-model="gradient" class="gpickr" />
 
-    <br /><br />
+    <br><br>
     <div class="text-left">
       {{ gradient.toString() }}
     </div>
@@ -57,12 +56,9 @@ export default {
   left: 0;
   right: 0;
   min-height: 300px;
-  background: v-bind(gradient);
+  background: linear-gradient(90deg, #0359b5ff 0%, #f6ce01ff 100%);
+  opacity: 0.5;
   z-index: 0;
-}
-h1 {
-  position: relative;
-  z-index: 1;
 }
 .gpickr {
   margin: 30px 0;

@@ -4,33 +4,42 @@
 
     <div class="vue-gpickr-inner-container">
       <div class="vue-gpickr-preview-container">
-        <div class="vue-gpickr-preview" :style="previewStyle"></div>
+        <div class="vue-gpickr-preview" :style="previewStyle" />
       </div>
 
-      <div class="vue-gpickr-stops-container" ref="stopsContainer">
+      <div ref="stopsContainer" class="vue-gpickr-stops-container">
         <div class="vue-gpickr-stops-preview-container">
-          <div class="vue-gpickr-stops-preview" :style="stopsPreviewStyle" @click.stop.prevent="addStop($event)"></div>
+          <div class="vue-gpickr-stops-preview" :style="stopsPreviewStyle" @click.stop.prevent="addStop($event)" />
         </div>
         <div
-          class="vue-gpickr-stop"
           v-for="(stop, index) in stops"
           :key="index"
+          class="vue-gpickr-stop"
           :style="stopStyle(index)"
           :class="{ active: index == currentStopIdx }"
           @mousedown.stop="handleMouseDown(index, $event)"
           @touchstart.stop="handleTouchstart(index, $event)"
-        >
-        </div>
+        />
       </div>
 
       <div class="vue-gpickr-controls-container">
         <div class="vue-gpickr-slider-container">
-          <input type="range" min="0" max="360" step="1" v-model="angle" />
-          <div class="label">Angle</div>
+          <input
+            v-model="angle"
+            type="range"
+            min="0"
+            max="360"
+            step="1"
+          >
+          <div class="label">
+            Angle
+          </div>
         </div>
         <div class="vue-gpickr-input-container">
-          <input type="text" v-model="angle" />
-          <div class="label">Deg&deg;</div>
+          <input v-model="angle" type="text">
+          <div class="label">
+            Deg&deg;
+          </div>
         </div>
       </div>
     </div>
@@ -38,7 +47,7 @@
 </template>
 
 <script>
-import { Sketch } from "@ckpack/vue-color";
+import { Sketch } from '@ckpack/vue-color';
 import LinearGradient from './LinearGradient';
 
 const COLOR = 0;
@@ -55,14 +64,12 @@ export default {
       default: () => new LinearGradient()
     }
   },
+  emits: ['update:modelValue'],
   data() {
     this.containerBoundingClientRectangle = {};
     return {
       currentStopIdx: 0
     };
-  },
-  beforeUnmount() {
-    this.unbindEventListeners();
   },
   computed: {
     angle: {
@@ -105,6 +112,9 @@ export default {
     limit() {
       return this.modelValue.limit
     }
+  },
+  beforeUnmount() {
+    this.unbindEventListeners();
   },
   methods: {
     emitInput(angle, stops, limit) {

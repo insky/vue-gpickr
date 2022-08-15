@@ -1,6 +1,6 @@
 {
   "name": "vue-gpickr",
-  "version": "0.4.2",
+  "version": "1.0.0",
   "private": false,
   "description": "Vue gradient picker",
   "keywords": [
@@ -28,38 +28,51 @@
     "build": "vue-cli-service build --target lib --name vue-gpickr src/index.js && rm dist/demo.html",
     "deploy": "./deploy.sh",
     "_deploy": "NODE_ENV=production vue-cli-service build --target app --name vue-gpickr --dest docs main.js",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "eslint": "eslint ./src --ext vue,js,mjs",
+    "eslint:fix": "eslint ./src --ext vue,js,mjs --fix"
   },
   "dependencies": {
-    "@ckpack/vue-color": "^1.1.5",
+    "@ckpack/vue-color": "^1.2.0",
     "tinycolor2": "^1.4.2",
-    "vue": "^3.2.30"
+    "vue": "^3.2.37"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-class-properties": "^7.14.5",
-    "@vue/cli-plugin-babel": "^4.5.14",
-    "@vue/cli-plugin-eslint": "^4.5.14",
-    "@vue/cli-service": "^4.5.14",
-    "babel-eslint": "^10.1.0",
-    "eslint": "^6.8.0",
-    "eslint-plugin-vue": "^7.20.0",
-    "node-sass": "^6.0.1",
-    "sass-loader": "^10.2.0",
-    "vue-template-compiler": "^2.6.14"
+    "@babel/eslint-parser": "^7.18.9",
+    "@vue/cli-plugin-babel": "^5.0.8",
+    "@vue/cli-plugin-eslint": "^5.0.8",
+    "@vue/cli-service": "^5.0.8",
+    "eslint": "^8.22.0",
+    "eslint-plugin-vue": "^9.3.0",
+    "sass": "^1.54.4",
+    "sass-loader": "^13.0.2",
+    "vue-template-compiler": "^2.7.8"
   },
   "eslintConfig": {
     "root": true,
     "env": {
+      "es2021": true,
       "node": true
     },
     "extends": [
-      "plugin:vue/essential",
+      "plugin:vue/vue3-essential",
+      "plugin:vue/vue3-recommended",
+      "plugin:vue/vue3-strongly-recommended",
       "eslint:recommended"
     ],
     "parserOptions": {
-      "parser": "babel-eslint"
+      "parser": "@babel/eslint-parser"
     },
-    "rules": {}
+    "rules": {
+      "vue/max-attributes-per-line": ["error", {
+        "singleline": {
+          "max": 3
+        },
+        "multiline": {
+          "max": 1
+        }
+      }]
+    }
   },
   "browserslist": [
     "> 1%",
@@ -69,9 +82,6 @@
   "babel": {
     "presets": [
       "@vue/cli-plugin-babel/preset"
-    ],
-    "plugins": [
-      "@babel/plugin-proposal-class-properties"
     ]
   }
 }
